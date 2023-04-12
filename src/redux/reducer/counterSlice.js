@@ -1,8 +1,18 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchAmount } from "../Api/counterApi";
 
 const initialState = {
   value: 0,
 };
+
+export const AddAsyncAmount = createAsyncThunk(
+  "counterSlice/asyncAdd",
+  async (amount) => {
+    const response = await fetchAmount(amount);
+    return response.data;
+  }
+);
+
 export const counterSlice = createSlice({
   name: "counterSlice",
   initialState,
@@ -13,10 +23,19 @@ export const counterSlice = createSlice({
     decrement: (state) => {
       state.value -= 1;
     },
+    setIncrementAmount: (state, action) => {
+      state.value += action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(AddAsyncAmount.fulfilled, (state, action) => {
+      state.value += action.payload;
+    });
   },
 });
 
-export const { increment, decrement } = counterSlice.actions;
+export const { increment, decrement, setIncrementAmount } =
+  counterSlice.actions;
 
 export const selectCount = (state) => state.counter.value;
 
